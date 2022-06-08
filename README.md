@@ -1,2 +1,2 @@
 # dasIT
-A delay-and-sum beamformer for plane-wave ultrasound.
+A hands-on introduction to ultrasound image formation using a plane-wave delay-and-sum beamformer.
