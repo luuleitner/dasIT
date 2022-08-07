@@ -6,5 +6,4 @@ dasIT is a delay-and-sum beamformer for planewave ultrasound implemented in Pyth
 
 # License
 This program is free software and licensed under the Apache License v2.0 - see the [LICENSE](https://github.com/luuleitner/dasIT/blob/main/LICENSE) file for details.
-The provided dataset and models are licensed under a [Creative Commons Attribution 4.0 International License](https://github.com/luuleitner/dasIT/blob/master/license_datasets).
 
