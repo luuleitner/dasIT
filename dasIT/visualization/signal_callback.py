@@ -23,6 +23,18 @@ Author: Christoph Leitner, Date: Aug. 2022
 import numpy as np
 from matplotlib import pyplot as plt
 
+def amp_1channel(signal=None):
+    fig = plt.figure(figsize=(10, 5), dpi=300)
+    ax_1 = fig.add_subplot(111)
+    ax_1.plot(signal)
+    ax_1.set_xlabel('Samples [#]')
+    ax_1.set_ylabel('Signal [V]')
+    ax_1.set_title('Channel Amplitude')
+
+    plt.tight_layout()
+    plt.show()
+
+
 
 def amp_freq_1channel(ampRaw, fftRaw, ampFil, fftFil, mode='box'):
 
