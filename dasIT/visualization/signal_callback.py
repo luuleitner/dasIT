@@ -23,8 +23,8 @@ Author: Christoph Leitner, Date: Aug. 2022
 import numpy as np
 from matplotlib import pyplot as plt
 
-def amp_1channel(signal=None):
-    fig = plt.figure(figsize=(10, 5), dpi=300)
+def amp_1channel(signal=None, ratio=[5,3]):
+    fig = plt.figure(figsize=(ratio[0], ratio[1]), dpi=300)
     ax_1 = fig.add_subplot(111)
     ax_1.plot(signal)
     ax_1.set_xlabel('Samples [#]')
