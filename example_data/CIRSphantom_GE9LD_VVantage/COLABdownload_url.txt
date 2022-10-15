@@ -2,4 +2,3 @@ https://raw.githubusercontent.com/luuleitner/dasIT/main/example_data/CIRSphantom
 https://raw.githubusercontent.com/luuleitner/dasIT/main/example_data/CIRSphantom_GE9LD_VVantage/tgc_cntrl_pt.csv
 https://raw.githubusercontent.com/luuleitner/dasIT/main/example_data/CIRSphantom_GE9LD_VVantage/tgc_waveform.csv
 https://raw.githubusercontent.com/luuleitner/dasIT/main/example_data/CIRSphantom_GE9LD_VVantage/transducer.csv
-https://raw.githubusercontent.com/luuleitner/dasIT/main/example_data/ColabBFfigures/ExperimentalSetup.jpg
