@@ -84,7 +84,7 @@ def plot_signal_grid(signals=None,
         signal = signals
 
     # fig = plt.figure(figsize=(6, 7), dpi=300)
-    fig = plt.figure(figsize=(4, 5), dpi=200)
+    fig = plt.figure(figsize=(5, 6), dpi=250)
     ax_1 = fig.add_subplot(111)
     ax_1.imshow(np.flipud(signal),
                 aspect=1,
