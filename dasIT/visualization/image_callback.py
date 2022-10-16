@@ -84,7 +84,7 @@ def plot_signal_grid(signals=None,
         signal = signals
 
     # fig = plt.figure(figsize=(6, 7), dpi=300)
-    fig = plt.figure(figsize=(4, 5), dpi=100)
+    fig = plt.figure(figsize=(4, 5), dpi=200)
     ax_1 = fig.add_subplot(111)
     ax_1.imshow(np.flipud(signal),
                 aspect=1,
@@ -99,6 +99,7 @@ def plot_signal_grid(signals=None,
     ax_1.set_ylabel('Axial [mm]', fontsize=15, fontweight='bold', labelpad=10)
     ax_1.xaxis.tick_top()
     ax_1.xaxis.set_label_position('top')
+    ax_1.minorticks_on()
 
     plt.xticks(fontsize=12)
     plt.yticks(fontsize=12)
