@@ -110,4 +110,12 @@ class medium():
     @property
     def alpha_power(self):
         return self._attenuation_power
+    
+    @property
+    def sampling_frequency(self):
+        return self._sampling_frequency
+    
+    @property
+    def speed_of_sound(self):
+        return self._speed_of_sound
 

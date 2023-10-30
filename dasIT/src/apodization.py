@@ -109,7 +109,7 @@ class apodization():
         # Bring apodization mask into a standardized shape
         apo_mask = np.expand_dims(np.moveaxis(apo_mask, 0, -1), axis=3)
 
-        return apo_mask.astype(np.int)
+        return apo_mask.astype(np.int32)
 
 
     def blackman_apodization(self):

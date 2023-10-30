@@ -61,7 +61,7 @@ def plot_signal_grid(signals=None,
 
     if axial_clip:
         # convert to mm
-        axial_clip = np.array(axial_clip, dtype=np.float)
+        axial_clip = np.array(axial_clip, dtype=np.float64)
         axial_clip[np.isnan(axial_clip)] = 0
         axial_clip *= m2mm_conversion
 
@@ -71,7 +71,7 @@ def plot_signal_grid(signals=None,
             cutoff_pzt[1] = cutoff_pzt[0] * 1.5
 
         # calculate the number of samples to clip off
-        axial_clip = np.ceil(cutoff_pzt * axis_vectors_xz[1].size).astype(np.int)
+        axial_clip = np.ceil(cutoff_pzt * axis_vectors_xz[1].size).astype(np.int32)
 
         # clip
         axis_vectors_xz[1] = axis_vectors_xz[1][axial_clip[0]:-axial_clip[1]]
@@ -104,10 +104,12 @@ def plot_signal_grid(signals=None,
     plt.xticks(fontsize=12)
     plt.yticks(fontsize=12)
     plt.tight_layout()
-    plt.show()
+    # plt.show()
 
     if path:
-        fig.savefig(os.path.join(path, 'plot2.png'), dpi=300)
+        fig.savefig(path, dpi=300)
+
+    return signal
 
 def extents(f):
     delta = f[1] - f[0]
