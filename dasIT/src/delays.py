@@ -38,7 +38,7 @@ class planewave_delays():
         self._speed_of_sound = sos
         self._sampling_frequency = fsampling
         self._angles = angles
-        self._max_time_sample = max_time_sample
+        self._max_time_sample = max_time_sample - 1
         self._axial_pos_first_active_element()
         self._delay_table = self.delays_by_sample()
 

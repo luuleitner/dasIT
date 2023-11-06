@@ -20,6 +20,7 @@ Author: Christoph Leitner, Date: Aug. 2022
 '''
 
 import numpy as np
+import math
 
 class tg_compensation():
     def __init__(self, signals=None, medium=None, center_frequency=None, cntrl_points=None, mode='points'):
@@ -28,7 +29,7 @@ class tg_compensation():
         self._alpha = medium.alpha
         self._alpha_power = medium.alpha_power
         if cntrl_points is not None:
-            self._control_points = cntrl_points.tgc_control_points
+            self._control_points = cntrl_points
         self._sound_speed = medium.speed_of_sound
         self._sampling_freq = medium.sampling_frequency
 
@@ -51,10 +52,12 @@ class tg_compensation():
         # the provided control points and multiplies them with the RF-signals of each channel.
 
         # Extrapolate TGC Control Points to total numer of recorded samples
-        TGC_wave_idx = np.arange(0, self._signals.shape[0], 1)
-        tgc_wave_idx = TGC_wave_idx[::self._signals.shape[0] // (self._control_points.shape[1]-1)]
+        TGC_wave_idx = np.arange(0, math.lcm(self._signals.shape[0], self._control_points.shape[1]), 1)
+
+        tgc_wave_idx = TGC_wave_idx[::(TGC_wave_idx.shape[0]) // (self._control_points.shape[1])]
         tgc_waveform = np.squeeze(self._control_points)
         TGC_waveform = np.interp(TGC_wave_idx, tgc_wave_idx, tgc_waveform)
+        TGC_waveform = TGC_waveform[::(TGC_wave_idx.shape[0]) // (self._signals.shape[0])]
 
         # bring into standardized shape for broadcasting
         TGC_waveform = np.repeat(np.expand_dims(TGC_waveform, axis=1), self._signals.shape[1], axis=1)
@@ -67,13 +70,13 @@ class tg_compensation():
         distance_vector = np.arange(0, self._signals.shape[0], 1)*(self._sound_speed / self._sampling_freq)
         alpha_db_cm = self._alpha * (self._center_frequency * 1e-6)**self._alpha_power
         alpha_np_m = alpha_db_cm / self._dB2neper * self._cm2m
-        tgc = np.exp(alpha_np_m * distance_vector)
+        tgc_waveform = np.exp(alpha_np_m * distance_vector)
 
         # bring into standardized shape for broadcasting
-        tgc_waveform = np.repeat(np.expand_dims(tgc, axis=1), self._signals.shape[1], axis=1)
+        tgc_waveform = np.repeat(np.expand_dims(tgc_waveform, axis=1), self._signals.shape[1], axis=1)
         tgc_waveform = np.repeat(np.expand_dims(tgc_waveform, axis=2), self._signals.shape[2], axis=2)                           
         
-        return self._signals * tgc
+        return self._signals * tgc_waveform
 
 
 

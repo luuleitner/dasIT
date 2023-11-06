@@ -23,7 +23,7 @@ Author: Christoph Leitner, Date: Aug. 2022
 import os
 import numpy as np
 from matplotlib import pyplot as plt
-from dasIT.features.signal import logcompression, envelope
+from ..features.signal import logcompression, envelope
 
 
 def plot_signal_image(signal, compression=True, dbrange=1, path=None):
