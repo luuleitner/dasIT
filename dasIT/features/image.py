@@ -23,10 +23,11 @@ Author: Christoph Leitner, Date: Aug. 2022
 import numpy as np
 from scipy.interpolate import RectBivariateSpline
 
-class interp_lateral():
-    def __init__(self, signals=None, transducer=None, medium=None, scale=2):
+class interpolate_bf():
+    def __init__(self, signals=None, transducer=None, medium=None, axial_scale=1, lateral_scale=2):
         self._signals = signals
-        self._interpolation_factor = scale
+        self._axial_interpolation_factor = axial_scale
+        self._lateral_interpolation_factor = lateral_scale
         self._active_aperture_size = transducer._pw_active_aperture
         self._recorded_depth = medium.recorded_depth * transducer.wavelength
 
@@ -37,14 +38,13 @@ class interp_lateral():
 
         self._m2mm_conversion_factor = 1000
 
-        self._signals_interp = self.lateral_interpolation()
+        self._signals_interp_lat = self.lateral_interpolation()
+        self._signals_interp = self.axial_interpolation()
         self._signals_grid_mm= self.px2mm_mesh()
-
-
 
     def lateral_interpolation(self):
         # CAUTION: to interpolate choose a smaller grid spacing NOT a larger grid!!
-        grid_spacing = 1 / self._interpolation_factor
+        grid_spacing = 1 / self._lateral_interpolation_factor
         lateral_spacing_interp_idx = np.arange(0,
                                                self._lateral_spacing,
                                                grid_spacing)  # new set of point indices in lateral (x) direction
@@ -56,9 +56,32 @@ class interp_lateral():
         signals_interp = function_interp2d(self._axial_spacing_idx, lateral_spacing_interp_idx)
 
         self._axial_spacing = signals_interp.shape[0]
+        self._axial_spacing_idx = np.arange(0, self._axial_spacing, 1)
         self._lateral_spacing = signals_interp.shape[1]
+        self._lateral_spacing_idx = np.arange(0, self._lateral_spacing, 1)
 
         return signals_interp
+    
+    def axial_interpolation(self):
+        # CAUTION: to interpolate choose a smaller grid spacing NOT a larger grid!!
+        grid_spacing = 1 / self._axial_interpolation_factor
+        axial_spacing_interp_idx = np.arange(0,
+                                               self._axial_spacing,
+                                               grid_spacing)  # new set of point indices in lateral (x) direction
+
+        function_interp2d = RectBivariateSpline(self._axial_spacing_idx,
+                                                self._lateral_spacing_idx,
+                                                self._signals_interp_lat)
+
+        signals_interp = function_interp2d(axial_spacing_interp_idx, self._lateral_spacing_idx)
+
+        self._axial_spacing = signals_interp.shape[0]
+        self._axial_spacing_idx = np.arange(0, self._axial_spacing, 1)
+        self._lateral_spacing = signals_interp.shape[1]
+        self._lateral_spacing_idx = np.arange(0, self._lateral_spacing, 1)
+
+        return signals_interp
+    
 
 
 
