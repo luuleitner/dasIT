@@ -82,9 +82,6 @@ class interpolate_bf():
 
         return signals_interp
     
-
-
-
     def px2mm_mesh(self):
         aperture_x_mm = (self._active_aperture_size * self._m2mm_conversion_factor)
         grid_x_conversion_px2mm = aperture_x_mm / self._lateral_spacing
@@ -99,7 +96,7 @@ class interpolate_bf():
         return [vector_x, vector_z]
 
     @property
-    def signals_lateral_interp(self):
+    def signals_interp(self):
         return self._signals_interp
 
     @property

@@ -86,6 +86,17 @@ class medium():
                                           endpoint=False)
         imaging_medium_grid = np.meshgrid(lateral_grid_points_m, axial_grid_points_m, sparse=True)
         return imaging_medium_grid
+    
+    # This is to update the imaging medium after fitting the beamformed signal to the original phantom grid.
+    def update_imaging_medium_axially(self, axial_distance, axial_len):
+        lateral_grid_points_m = self._lateral_grid_spacing
+        axial_grid_points_m = np.linspace(0,
+                                          axial_distance,
+                                          axial_len,
+                                          endpoint=False)
+        imaging_medium_grid = np.meshgrid(lateral_grid_points_m, axial_grid_points_m, sparse=True)
+        self._imaging_medium = imaging_medium_grid
+
 
     @property
     def speed_of_sound(self):
