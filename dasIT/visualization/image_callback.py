@@ -55,7 +55,8 @@ def plot_signal_grid(signals=None,
                      axial_clip=None,
                      compression=True,
                      dbrange=50,
-                     path=None):
+                     path=None,
+                     pad=False):
 
     m2mm_conversion = 1000
 
@@ -82,6 +83,12 @@ def plot_signal_grid(signals=None,
         signal = logcompression(signals, dbrange)
     else:
         signal = signals
+
+    if pad:
+        signal = np.pad(signal, 
+                        ((axial_clip[0], axial_clip[1]), (0,0)),
+                        mode='constant', 
+                        constant_values=0)
 
     # fig = plt.figure(figsize=(6, 7), dpi=300)
     fig = plt.figure(figsize=(5, 6), dpi=250)
