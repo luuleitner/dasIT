@@ -89,31 +89,31 @@ def plot_signal_grid(signals=None,
                         ((axial_clip[0], axial_clip[1]), (0,0)),
                         mode='constant', 
                         constant_values=0)
-
-    # fig = plt.figure(figsize=(6, 7), dpi=300)
-    fig = plt.figure(figsize=(5, 6), dpi=250)
-    ax_1 = fig.add_subplot(111)
-    ax_1.imshow(np.flipud(signal),
-                aspect=1,
-                interpolation='none',
-                extent=extents(axis_vectors_xz[0]) + extents(axis_vectors_xz[1]),
-                origin='upper',
-                cmap='gray')
-
-    ax_1.invert_yaxis()
-
-    ax_1.set_xlabel('Lateral [mm]', fontsize=15, fontweight='bold', labelpad=10)
-    ax_1.set_ylabel('Axial [mm]', fontsize=15, fontweight='bold', labelpad=10)
-    ax_1.xaxis.tick_top()
-    ax_1.xaxis.set_label_position('top')
-    ax_1.minorticks_on()
-
-    plt.xticks(fontsize=12)
-    plt.yticks(fontsize=12)
-    plt.tight_layout()
-    # plt.show()
-
+        
     if path:
+        # fig = plt.figure(figsize=(6, 7), dpi=300)
+        fig = plt.figure(figsize=(5, 6), dpi=250)
+        ax_1 = fig.add_subplot(111)
+        ax_1.imshow(np.flipud(signal),
+                    aspect=1,
+                    interpolation='none',
+                    extent=extents(axis_vectors_xz[0]) + extents(axis_vectors_xz[1]),
+                    origin='upper',
+                    cmap='gray')
+
+        ax_1.invert_yaxis()
+
+        ax_1.set_xlabel('Lateral [mm]', fontsize=15, fontweight='bold', labelpad=10)
+        ax_1.set_ylabel('Axial [mm]', fontsize=15, fontweight='bold', labelpad=10)
+        ax_1.xaxis.tick_top()
+        ax_1.xaxis.set_label_position('top')
+        ax_1.minorticks_on()
+
+        plt.xticks(fontsize=12)
+        plt.yticks(fontsize=12)
+        plt.tight_layout()
+        # plt.show()
+
         fig.savefig(path, dpi=300)
 
     return signal
