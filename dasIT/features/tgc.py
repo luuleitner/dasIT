@@ -65,6 +65,26 @@ class tg_compensation():
 
         return self._signals * TGC_waveform
     
+    def tgc_from_control_points_log(self):
+
+        # This is based on the verasonics manual where it is stated that the tgc waveform ranges between 0 and 1023 where 1023 means 40dB 
+
+        # Extrapolate TGC Control Points to total numer of recorded samples
+        TGC_wave_idx = np.arange(0, math.lcm(self._signals.shape[0], self._control_points.shape[1]), 1)
+
+        tgc_wave_idx = TGC_wave_idx[::(TGC_wave_idx.shape[0]) // (self._control_points.shape[1])]
+        tgc_waveform = np.squeeze(self._control_points)
+        TGC_waveform = np.interp(TGC_wave_idx, tgc_wave_idx, tgc_waveform)
+        TGC_waveform = TGC_waveform[::(TGC_wave_idx.shape[0]) // (self._signals.shape[0])]
+
+        TGC_waveform = np.power(10, (TGC_waveform*40/1023)/20)
+
+        # bring into standardized shape for broadcasting
+        TGC_waveform = np.repeat(np.expand_dims(TGC_waveform, axis=1), self._signals.shape[1], axis=1)
+        TGC_waveform = np.repeat(np.expand_dims(TGC_waveform, axis=2), self._signals.shape[2], axis=2)
+
+        return self._signals * TGC_waveform
+    
     def tgc_from_alpha(self):
 
         distance_vector = np.arange(0, self._signals.shape[0], 1)*(self._sound_speed / self._sampling_freq)
