@@ -74,7 +74,7 @@ def plot_signal_grid(signals=None,
         # calculate the number of samples to clip off
         axial_clip = np.ceil(cutoff_pzt * axis_vectors_xz[1].size).astype(np.int32)
 
-        print(f"Axial clip: [{axial_clip[0]},{axial_clip[1]}]")
+        # print(f"Axial clip: [{axial_clip[0]},{axial_clip[1]}]")
 
         # clip
         axis_vectors_xz[1] = axis_vectors_xz[1][axial_clip[0]:-axial_clip[1]]
