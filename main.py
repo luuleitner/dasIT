@@ -13,13 +13,13 @@ from dasIT.src.delays import planewave_delays
 from dasIT.src.apodization import apodization
 from dasIT.src.das_bf import RXbeamformer
 from dasIT.features.signal import RFfilter, fftsignal, analytic_signal
-#from dasIT.features.image import interp_lateral
+#from dasIT.features.image import
 from dasIT.visualization.signal_callback import amp_freq_1channel, transducer_channel_map, IQsignal_1ch
 from dasIT.visualization.image_callback import plot_signal_grid, plot_signal_image
 
 ####################################################################
 #-------------------- Preset MANUAL / USERINPUT -------------------#
-ARG_BASE_PATH = pathlib.PureWindowsPath(r'C:\Users\Christoph\code\deploy\dasIT').as_posix()
+ARG_BASE_PATH = pathlib.PureWindowsPath(r'C:\Users\chule\code\deploy\dasIT').as_posix()
 
 
 ####################################################################
@@ -27,8 +27,10 @@ ARG_BASE_PATH = pathlib.PureWindowsPath(r'C:\Users\Christoph\code\deploy\dasIT')
 
 # Load Verasonix Setup
 ARG_DATA_PATH = os.path.join(ARG_BASE_PATH, 'data/2024_USDataRecycler_debuging')
-ARG_TRANSDUCER_PATH = os.path.join(ARG_BASE_PATH, r'data\GE9LD_transducer\GE9LD.mat')
-ARG_PINMAP_PATH = os.path.join(ARG_BASE_PATH, r'data\GE9LD_transducer\GE9LD_pinmap.csv')
+ARG_RES_PATH = os.path.join(ARG_BASE_PATH, 'data/results/2024_USDataRecycler_debuging')
+ARG_TRANSDUCER_PATH = os.path.join(ARG_BASE_PATH, r'example_data\CIRSphantom_GE9LD_VVantage\transducer.csv')
+ARG_TGC_PT_PATH = os.path.join(ARG_BASE_PATH, r'example_data\CIRSphantom_GE9LD_VVantage\tgc_cntrl_pt.csv')
+ARG_TGC_WF_PATH = os.path.join(ARG_BASE_PATH, r'example_data\CIRSphantom_GE9LD_VVantage\tgc_waveform.csv')
 
 
 
@@ -48,7 +50,6 @@ dasIT_transducer = transducer(center_frequency_hz = 5.3e6,  # <--- FILL IN CENTE
                               axial_cutoff_wavelength=5,  # [#]
                               speed_of_sound_ms = 1540)  # <--- FILL IN THE SPEED OF SOUND IN [m/s]
 
-
 # dasIT medium
 dasIT_medium = medium(speed_of_sound_ms = 1540, # [m/s]
                       center_frequency = dasIT_transducer.center_frequency, # [Hz]
@@ -64,11 +65,19 @@ dasIT_medium = medium(speed_of_sound_ms = 1540, # [m/s]
 #------------------------- RFData Loading -------------------------#
 
 ### Load RF Data
-ARG_RFDATA_PATH = os.path.join(ARG_BASE_PATH, r'data\usdatarecycler\original_sample_with_error\sensor_data_verasonics_2019_epfl_session_2_pw0.npy')
-RFdata = np.load(ARG_RFDATA_PATH)
-# RFdata = RFDataloader(ARG_RFDATA_PATH,
-#                       dtype='mat',
-#                       mode='single')
+ARG_DATA_FLAG = 2
+
+if ARG_DATA_FLAG == 1:
+    class NestedArray:
+      def __init__(self, signal):
+        self.signal = signal
+    ARG_RFDATA_PATH = os.path.join(ARG_BASE_PATH, r'data\usdatarecycler\original_sample_with_error\sensor_data_verasonics_2019_epfl_session_2_pw0.npy')
+    RFdata = NestedArray(np.load(ARG_RFDATA_PATH))
+    RFdata.signal = np.expand_dims(RFdata.signal, axis=2)
+
+elif ARG_DATA_FLAG == 2:
+    ARG_RFDATA_PATH = os.path.join(ARG_BASE_PATH, r'example_data\CIRSphantom_GE9LD_VVantage\CIRS_phantom.h5')
+    RFdata = RFDataloader(ARG_RFDATA_PATH)
 
 ### Preprocess (Clip and Sort) RF Data
 # SAMPLE START: samples start at first recorded echo (number of wavelength distance is provided from vendor) -> null out the rest to not oveshadow the real results
@@ -82,14 +91,12 @@ RFdata.signal = RFdata.signal[:dasIT_medium.rx_echo_totalnr_samples, dasIT_trans
 #---------------------- Time Gain Compensation --------------------#
 
 # Load tgc-waveform
-ARG_TGC_PT_PATH = os.path.join(ARG_BASE_PATH, r'data\tgc_cntrl_pt.csv')
-ARG_TGC_WF_PATH = os.path.join(ARG_BASE_PATH, r'data\tgc_waveform.csv')
-tgc_cntrl_points = TGCloader(controlpt_path=ARG_TGC_PT_PATH)
 
+tgc_cntrl_points = TGCloader(controlpt_path=ARG_TGC_PT_PATH)
 TGCsignals = tg_compensation(signals=RFdata.signal,
                              medium=dasIT_medium,
                              center_frequency=dasIT_transducer.center_frequency,
-                             cntrl_points=tgc_cntrl_points,
+                             cntrl_points=tgc_cntrl_points.tgc_control_points,
                              mode='points')
 
 
@@ -132,7 +139,7 @@ RFdata_analytic = analytic_signal(np.squeeze(RFdata_filtered.signal), interp=Fal
 #              start=400,
 #              stop=600)
 
-plot_signal_image(RFdata_analytic[:,:,0], compression=True, dbrange=35, path=ARG_DATA_PATH)
+plot_signal_image(RFdata_analytic[:,:,0], compression=True, dbrange=35, path=ARG_RES_PATH)
 
 
 ####################################################################
@@ -174,9 +181,6 @@ BFsignals = RXbeamformer(signals=RFsignals,
                          delays=delay_table.sample_delays,
                          apodization=apodization.table)
 
-# BFsignals = RXbeamformer(signals=RFsignals,
-#                          delays=delay_table.sample_delays)
-
 
 ####################################################################
 #------------------------ Image Formation --------------------------
@@ -197,7 +201,7 @@ plot_signal_grid(signals=BFsignals.interpolated.signals_lateral_interp,
                  axial_clip=[dasIT_transducer.start_depth_rec_m, None],
                  compression=True,
                  dbrange=58,
-                 path=ARG_DATA_PATH)
+                 path=ARG_RES_PATH)
 
-IQsignal_1ch(BFsignals.frame[:,128].real, mode='full', path=ARG_DATA_PATH)
+# IQsignal_1ch(BFsignals.frame[:,128].real, mode='full', path=ARG_RES_PATH)
 
