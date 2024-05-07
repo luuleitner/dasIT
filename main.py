@@ -13,7 +13,7 @@ from dasIT.src.delays import planewave_delays
 from dasIT.src.apodization import apodization
 from dasIT.src.das_bf import RXbeamformer
 from dasIT.features.signal import RFfilter, fftsignal, analytic_signal
-#from dasIT.features.image import
+from dasIT.features.image import interpolate_bf
 from dasIT.visualization.signal_callback import amp_freq_1channel, transducer_channel_map, IQsignal_1ch
 from dasIT.visualization.image_callback import plot_signal_grid, plot_signal_image
 
@@ -65,7 +65,7 @@ dasIT_medium = medium(speed_of_sound_ms = 1540, # [m/s]
 #------------------------- RFData Loading -------------------------#
 
 ### Load RF Data
-ARG_DATA_FLAG = 2
+ARG_DATA_FLAG = 1   #   FLAG==1 --> CIRS Phantom, FLAG==2 --> USDataRecycler Data
 
 if ARG_DATA_FLAG == 1:
     class NestedArray:
@@ -139,7 +139,8 @@ RFdata_analytic = analytic_signal(np.squeeze(RFdata_filtered.signal), interp=Fal
 #              start=400,
 #              stop=600)
 
-plot_signal_image(RFdata_analytic[:,:,0], compression=True, dbrange=35, path=ARG_RES_PATH)
+# plot_signal_image(RFdata_analytic[:,:,0], compression=True, dbrange=35, path=ARG_RES_PATH)
+plot_signal_image(RFdata_analytic[:,:], compression=True, dbrange=35, path=ARG_RES_PATH)
 
 
 ####################################################################
@@ -162,7 +163,7 @@ delay_table = planewave_delays(medium=dasIT_medium.medium,
                                angles=dasIT_transducer.planewave_angles())
 
 
-#plot_signal_grid(delay_table.sample_delays[:,:,0], dasIT_medium.medium, compression=False, dbrange=60)
+# plot_signal_grid(delay_table.sample_delays[:,:,0], dasIT_medium.medium, compression=False, dbrange=60)
 
 
 ####################################################################
@@ -171,7 +172,8 @@ start_das_timing = datetime.now()
 
 # Mask images areas in axial direction which have been included for reconstruction
 # but are not part of the actual image.
-RFsignals = RFdata_analytic[:,:,0]
+# RFsignals = RFdata_analytic[:,:,0]
+RFsignals = RFdata_analytic[:,:]
 
 RFsignals = np.expand_dims(RFsignals, 2)
 RFsignals = np.repeat(RFsignals, RFsignals.shape[1], axis=2)
@@ -181,6 +183,7 @@ BFsignals = RXbeamformer(signals=RFsignals,
                          delays=delay_table.sample_delays,
                          apodization=apodization.table)
 
+# plot_signal_image(BFsignals.envelope, compression=True, dbrange=35, path=ARG_RES_PATH)
 
 ####################################################################
 #------------------------ Image Formation --------------------------
@@ -189,14 +192,15 @@ BFsignals = RXbeamformer(signals=RFsignals,
 BFsignals.envelope = abs(BFsignals.frame)
 
 # Interpolate over Lateral space
-BFsignals.interpolated = interp_lateral(signals=BFsignals.envelope,
+BFsignals.interpolated = interpolate_bf(signals=BFsignals.envelope,
                                         transducer=dasIT_transducer,
                                         medium=dasIT_medium,
-                                        scale=3)
+                                        axial_scale=1,
+                                        lateral_scale=2)
 
 
 # Plot image
-plot_signal_grid(signals=BFsignals.interpolated.signals_lateral_interp,
+plot_signal_grid(signals=BFsignals.interpolated.signals_interp,
                  axis_vectors_xz=BFsignals.interpolated.imagegrid_mm,
                  axial_clip=[dasIT_transducer.start_depth_rec_m, None],
                  compression=True,
