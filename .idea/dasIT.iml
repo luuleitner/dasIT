@@ -5,7 +5,7 @@
       <excludeFolder url="file://$MODULE_DIR$/.venv_tartaruga" />
       <excludeFolder url="file://$MODULE_DIR$/.venv_tartaruga_liuto" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.11 (dasIT) (2)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.12 (dasIT) (2)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>

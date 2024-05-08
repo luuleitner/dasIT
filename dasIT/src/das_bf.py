@@ -34,15 +34,15 @@ class RXbeamformer():
         _, tdelement_px_selector, tdelement_selector, angle_selector = np.ogrid[:0, :delays_tdelement_px_shape,:delays_tdelement_shape, :delays_angles_shape]
 
         # Apodize
-        if self._apodization is not None:
-            self._delays *= self._apodization
+        # if self._apodization is not None:
+        #     self._delays *= self._apodization
 
         # Sum signals
         # Delay tables select elements per channel
         frame = np.sum(np.squeeze(self._signals[self._delays,
                                                 tdelement_px_selector,
                                                 tdelement_selector,
-                                                angle_selector]),
+                                                angle_selector] * self._apodization),
                        axis=1)
 
         return frame

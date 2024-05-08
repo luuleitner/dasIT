@@ -19,7 +19,7 @@ from dasIT.visualization.image_callback import plot_signal_grid, plot_signal_ima
 
 ####################################################################
 #-------------------- Preset MANUAL / USERINPUT -------------------#
-ARG_BASE_PATH = pathlib.PureWindowsPath(r'C:\Users\chule\code\deploy\dasIT').as_posix()
+ARG_BASE_PATH = pathlib.PureWindowsPath(r'C:\Users\christoph\code\deploy\dasIT').as_posix()
 
 
 ####################################################################
@@ -75,7 +75,7 @@ if ARG_DATA_FLAG == 1:
     RFdata = NestedArray(np.load(ARG_RFDATA_PATH))
     RFdata.signal = np.expand_dims(RFdata.signal, axis=2)
     # RFdata.signal=np.concatenate((RFdata.signal, np.repeat(np.zeros((1, 192, 1)), 8, axis=0)), axis=0)
-    RFdata.signal[-5:,:,:] = 0
+    RFdata.signal[-25:,:,:] = 0
     plot_signal_image(RFdata.signal[:,:,0], compression=True, dbrange=35, path=os.path.join(ARG_RES_PATH,'rf_recycler.png'))
 
 if ARG_DATA_FLAG == 2:
@@ -158,7 +158,7 @@ RFdata_analytic = analytic_signal(np.squeeze(RFdata_filtered.signal), interp=Fal
 apodization = apodization(delays=None,
                           medium=dasIT_medium.medium,
                           transducer=dasIT_transducer,
-                          apo='rec',
+                          apo='henning',
                           angles=dasIT_transducer.planewave_angles())
 
 a = np.ones_like(apodization.table)
