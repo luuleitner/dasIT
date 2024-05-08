@@ -32,7 +32,10 @@ def plot_signal_image(signal, compression=True, dbrange=1, path=None):
 
     fig = plt.figure(figsize=(6, 7), dpi=300)
     ax_1 = fig.add_subplot(111)
-    ax_1.imshow(signal[90:-700, :],
+    # ax_1.imshow(signal[90:-700, :],
+    #             aspect=1,
+    #             cmap='gray')
+    ax_1.imshow(signal,
                 aspect=1,
                 cmap='gray')
 

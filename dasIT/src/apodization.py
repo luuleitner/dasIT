@@ -78,7 +78,7 @@ class apodization():
         directive_aperture = (directive_aperture * self._medium[0].size) / self._pw_active_aperture
         # round to integer to get the number of active elements for each depth
         directive_aperture = self._round_elements(elements=directive_aperture, type='odd')
-        # find the ceter of the active aperture
+        # find the center of the active aperture
         directive_centre = int(np.amax(directive_aperture) / 2)
 
         # Create the apodization Kernel
@@ -144,7 +144,7 @@ class apodization():
         apo_mask = np.repeat(np.expand_dims(apo_mask, axis=2), self._nr_elements, axis=2)
         apo_mask = np.tile(np.expand_dims(apo_mask, axis=3), self._angles.size)
 
-        return apo_mask.astype(np.int)
+        return apo_mask.astype(np.int32)
 
 
     @property
