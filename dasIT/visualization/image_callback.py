@@ -47,7 +47,7 @@ def plot_signal_image(signal, compression=True, dbrange=1, path=None):
     plt.show()
 
     if path:
-        fig.savefig(os.path.join(path, 'plot1.png'), dpi=300)
+        fig.savefig(path, dpi=300)
 
 
 def plot_signal_grid(signals=None,
@@ -114,10 +114,9 @@ def plot_signal_grid(signals=None,
         plt.xticks(fontsize=12)
         plt.yticks(fontsize=12)
         plt.tight_layout()
-        # plt.show()
-
-        fig.savefig(path, dpi=300)
-
+        plt.show()
+        if path:
+            fig.savefig(path, dpi=300)
     return signal
 
 def extents(f):

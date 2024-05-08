@@ -26,7 +26,6 @@ ARG_BASE_PATH = pathlib.PureWindowsPath(r'C:\Users\chule\code\deploy\dasIT').as_
 #------------------ Preset Transducer and Medium ------------------#
 
 # Load Verasonix Setup
-ARG_DATA_PATH = os.path.join(ARG_BASE_PATH, 'data/2024_USDataRecycler_debuging')
 ARG_RES_PATH = os.path.join(ARG_BASE_PATH, 'data/results/2024_USDataRecycler_debuging')
 ARG_TRANSDUCER_PATH = os.path.join(ARG_BASE_PATH, r'example_data\CIRSphantom_GE9LD_VVantage\transducer.csv')
 ARG_TGC_PT_PATH = os.path.join(ARG_BASE_PATH, r'example_data\CIRSphantom_GE9LD_VVantage\tgc_cntrl_pt.csv')
@@ -140,7 +139,7 @@ RFdata_analytic = analytic_signal(np.squeeze(RFdata_filtered.signal), interp=Fal
 #              stop=600)
 
 # plot_signal_image(RFdata_analytic[:,:,0], compression=True, dbrange=35, path=ARG_RES_PATH)
-plot_signal_image(RFdata_analytic[:,:], compression=True, dbrange=35, path=ARG_RES_PATH)
+plot_signal_image(RFdata_analytic[:,:], compression=True, dbrange=35, path=os.path.join(ARG_RES_PATH,'rf.png'))
 
 
 ####################################################################
@@ -205,7 +204,7 @@ plot_signal_grid(signals=BFsignals.interpolated.signals_interp,
                  axial_clip=[dasIT_transducer.start_depth_rec_m, None],
                  compression=True,
                  dbrange=58,
-                 path=ARG_RES_PATH)
+                 path=os.path.join(ARG_RES_PATH,'image.png'))
 
 # IQsignal_1ch(BFsignals.frame[:,128].real, mode='full', path=ARG_RES_PATH)
 
