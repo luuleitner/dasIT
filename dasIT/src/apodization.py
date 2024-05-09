@@ -41,15 +41,13 @@ class apodization():
             self._fnumber = 1.7
 
         self._apodization_type = apo
-        if self._apodization_type == 'rec':
-            self._apo_table = self.single_channel_apodization()
-        elif self._apodization_type == 'blackman':
-            self._apo_table = self.blackman_apodization()
-            # this still needs to be implemented
-        elif self._apodization_type == 'mask':
-            self._apo_table = self.rectangular_masking()
+        if self._apodization_type == 'blackman':
+            self._window = 'blackman'
+        elif self._apodization_type == 'hanning':
+            self._window = 'hanning'
         else:
             print(r'ERROR MESSAGE: Selected aodization type does not exist. Choose either \textit{rec} or \textit{blackman}.')
+        self._apo_table = self.__apodization()
 
 
     def _round_elements(self, elements=None, type='odd'):
@@ -63,13 +61,13 @@ class apodization():
         else:
             print(r'ERROR MESSAGE: Wrong rounding argument in apodization.')
 
-    def single_channel_apodization(self):
-        # adapted from:
+    def __apodization(self):
+        # partially adapted from:
         # [1] C.L.Palmer and O.M.H.Rindal, Wireless, real - time plane - wave coherent compounding on an iphone - a
         # feasibility study, IEEE Transactions on Ultrasonics, Ferroelectrics, and Frequency Control, vol. 66, 7, pp.
         # 1222–1231, 2019. doi: https://doi.org/10.1109/TUFFC.2019.2914555
-        # Calculate the array directivity based on the focus number of the transducer:
 
+        # Calculate the array directivity based on the focus number of the transducer:
 
         px_grid_depth = self._medium[1]
         # active aperture = z / (2 * f)
@@ -78,18 +76,21 @@ class apodization():
         directive_aperture = (directive_aperture * self._medium[0].size) / self._pw_active_aperture
         # round to integer to get the number of active elements for each depth
         directive_aperture = self._round_elements(elements=directive_aperture, type='odd')
-        # find the ceter of the active aperture
+        # find the center of the active aperture
         directive_centre = int(np.amax(directive_aperture) / 2)
 
         # Create the apodization Kernel
+        # Setup window function
+        window = self.__create_window(sort=directive_aperture)
+
         # Initialize Kernel
         apo_kernel = np.zeros((directive_aperture.shape[0], int(np.amax(directive_aperture))))
+
         # Build Kernel
-        for row_idx,(apo_datarow, directive_datarow) in enumerate(zip(apo_kernel, directive_aperture)):
-            # Pad the active aperture (directivity) by setting the active elements
+        for row_idx,(apo_datarow, directive_datarow, win) in enumerate(zip(apo_kernel, directive_aperture, window)):
+            # Pad the active aperture (directivity) by setting the active element weights
             padding_start_element = int((len(apo_datarow) / 2) - (directive_datarow / 2))
-            padding_stop_element = int(padding_start_element + directive_datarow)
-            apo_kernel[row_idx, padding_start_element:padding_stop_element] = 1
+            apo_kernel[row_idx, padding_start_element:(padding_start_element+len(win))] = win
 
         # Initialize the size of the apodization masks and pad to fit the kernel on the array boundaries
         # Initialize Mask
@@ -109,42 +110,18 @@ class apodization():
         # Bring apodization mask into a standardized shape
         apo_mask = np.expand_dims(np.moveaxis(apo_mask, 0, -1), axis=3)
 
-        return apo_mask.astype(np.int32)
+        return apo_mask
 
 
-    def blackman_apodization(self):
-        return print('to be implemented')
-
-
-    def rectangular_masking(self):
-        directive_aperture = ((self._medium[1]) / (2 * self._fnumber)) / self._pitch
-        directive_aperture = self._round_elements(elements=directive_aperture, type='even')
-        directive_centre = int(np.amax(directive_aperture) / 2)
-
-        # Create the apodization Kernel
-        apo_kernel = np.ones((directive_aperture.shape[0], int(np.amax(directive_aperture))))
-        for row_idx,(apo_datarow, directive_datarow) in enumerate(zip(apo_kernel, directive_aperture)):
-            # Pad the active aperture (directivity) by setting non active alements twords
-            # the transducer ends to zero
-            padding_size = int((apo_kernel.shape[1] / 2) - ((directive_datarow / 2) - 1))
-            # left transducer padding
-            apo_kernel[row_idx, :padding_size] = 0
-            # right transducer padding
-            apo_kernel[row_idx, -padding_size:] = 0
-
-        # Pad apodization kernel to the full transducer channel count with the apodization
-        # centered at the transducer channel median
-        padding = int((self._nr_elements - apo_kernel.shape[1]) / 2)
-        apo_mask = np.pad(apo_kernel,
-                          ((0, 0), (padding, padding)),
-                          mode='constant',
-                          constant_values=0)
-
-        # Bring apodization mask into the standardized shape
-        apo_mask = np.repeat(np.expand_dims(apo_mask, axis=2), self._nr_elements, axis=2)
-        apo_mask = np.tile(np.expand_dims(apo_mask, axis=3), self._angles.size)
-
-        return apo_mask.astype(np.int)
+    def __create_window(self, sort=None):
+        print()
+        if self._window == 'hanning':
+            window = [np.hanning(w) for w in np.squeeze(sort)]
+        elif self._window == 'blackman':
+            window = [np.blackman(w) for w in np.squeeze(sort)]
+        else:
+            print(r'ERROR MESSAGE: Wrong argument for window.')
+        return window
 
 
     @property

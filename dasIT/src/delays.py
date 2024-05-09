@@ -33,12 +33,12 @@ import numpy as np
 from datetime import datetime
 
 class planewave_delays():
-    def __init__(self, medium=None, sos=1540, fsampling=1, angles=0, max_time_sample = 1360):
+    def __init__(self, medium=None, sos=1540, fsampling=1, angles=0, max_depth_samples=1360):
         self._medium = medium
         self._speed_of_sound = sos
         self._sampling_frequency = fsampling
         self._angles = angles
-        self._max_time_sample = max_time_sample - 1
+        self._max_time_sample = max_depth_samples - 1
         self._axial_pos_first_active_element()
         self._delay_table = self.delays_by_sample()
 
@@ -105,8 +105,13 @@ class planewave_delays():
     def delays_by_sample(self):
         start_timing = datetime.now()
 
+        # Calculation of the time delays for each point
         delays_time = ((self.tx_dist2echo() + self.rx_dist2echo()) / self._speed_of_sound)
+
+        # Conversion of delays from a time-dependent space to an ADC-sampling-dependent space
         delays_sample = np.rint(np.multiply(delays_time, self._sampling_frequency))
+
+
         delays_sample[delays_sample > self._max_time_sample] = 0
 
         end_timing = datetime.now()
