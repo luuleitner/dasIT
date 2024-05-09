@@ -43,8 +43,8 @@ class apodization():
         self._apodization_type = apo
         if self._apodization_type == 'blackman':
             self._window = 'blackman'
-        elif self._apodization_type == 'henning':
-            self._window = 'henning'
+        elif self._apodization_type == 'hanning':
+            self._window = 'hanning'
         else:
             print(r'ERROR MESSAGE: Selected aodization type does not exist. Choose either \textit{rec} or \textit{blackman}.')
         self._apo_table = self.__apodization()
@@ -66,8 +66,8 @@ class apodization():
         # [1] C.L.Palmer and O.M.H.Rindal, Wireless, real - time plane - wave coherent compounding on an iphone - a
         # feasibility study, IEEE Transactions on Ultrasonics, Ferroelectrics, and Frequency Control, vol. 66, 7, pp.
         # 1222–1231, 2019. doi: https://doi.org/10.1109/TUFFC.2019.2914555
-        # Calculate the array directivity based on the focus number of the transducer:
 
+        # Calculate the array directivity based on the focus number of the transducer:
 
         px_grid_depth = self._medium[1]
         # active aperture = z / (2 * f)
@@ -110,13 +110,12 @@ class apodization():
         # Bring apodization mask into a standardized shape
         apo_mask = np.expand_dims(np.moveaxis(apo_mask, 0, -1), axis=3)
 
-        # return apo_mask.astype(np.int32)
         return apo_mask
 
 
     def __create_window(self, sort=None):
         print()
-        if self._window == 'henning':
+        if self._window == 'hanning':
             window = [np.hanning(w) for w in np.squeeze(sort)]
         elif self._window == 'blackman':
             window = [np.blackman(w) for w in np.squeeze(sort)]

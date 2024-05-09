@@ -35,19 +35,19 @@ ARG_TGC_WF_PATH = os.path.join(ARG_BASE_PATH, r'example_data\CIRSphantom_GE9LD_V
 
 # dasIT transducer
 physical_transducer = TDloader('example_data/CIRSphantom_GE9LD_VVantage/transducer.csv')
-dasIT_transducer = transducer(center_frequency_hz = 5.3e6,  # <--- FILL IN CENTER FREQUENCY OF THE TRANSDUCER IN [Hz]
+dasIT_transducer = transducer(center_frequency_hz = 5.3e6,  # [Hz]
                               bandwidth_hz=physical_transducer.transducer['bandwidth'].dropna().to_numpy(dtype='float', copy=False),    # [Hz]
                               adc_ratio=4,  # [-]
-                              transducer_elements_nr = 192, # <--- FILL IN THE NUMBER OF TRANSDUCER ELEMENTS [#]
-                              element_pitch_m = 2.3e-4, # <--- FILL IN THE ELEMENT PITCH IN [m]
+                              transducer_elements_nr = 192, # [#]
+                              element_pitch_m = 2.3e-4, # [m]
                               pinmap=physical_transducer.transducer['pinmap'].dropna().to_numpy(dtype='int', copy=False),   # [-]
                               pinmapbase=1, # [-]
                               elevation_focus=0.028, # [m]
-                              focus_number=0.5,
-                              totalnr_planewaves=1,     # [-]
+                              focus_number=0.5, # [-]
+                              totalnr_planewaves=1,  # [-]
                               planewave_angle_interval=[0,0],   # [rad]
                               axial_cutoff_wavelength=5,  # [#]
-                              speed_of_sound_ms = 1540)  # <--- FILL IN THE SPEED OF SOUND IN [m/s]
+                              speed_of_sound_ms = 1540)  # [m/s]
 
 # dasIT medium
 dasIT_medium = medium(speed_of_sound_ms = 1540, # [m/s]
@@ -56,7 +56,7 @@ dasIT_medium = medium(speed_of_sound_ms = 1540, # [m/s]
                       max_depth_wavelength = 176,   # [#] 177
                       lateral_transducer_element_spacing = dasIT_transducer.lateral_transducer_spacing, # [m]
                       axial_extrapolation_coef = 1.05,  # [-]
-                      grid_granularity=2,
+                      grid_granularity=2,   # [-]
                       attenuation_coefficient= 0.75,   # [dB/(MHz^y cm)]
                       attenuation_power=1.5   # [-]
                       )
@@ -65,7 +65,7 @@ dasIT_medium = medium(speed_of_sound_ms = 1540, # [m/s]
 #------------------------- RFData Loading -------------------------#
 
 ### Load RF Data
-ARG_DATA_FLAG = 3   #   FLAG==1 --> CIRS Phantom, FLAG==2 --> USDataRecycler Data
+ARG_DATA_FLAG = 1   #   FLAG==1 --> USDataRecycler Data BUG!, FLAG==2 --> USDataRecycler Data OK, FLAG==1 --> CIRS Phantom
 
 if ARG_DATA_FLAG == 1:
     class NestedArray:
@@ -74,8 +74,6 @@ if ARG_DATA_FLAG == 1:
     ARG_RFDATA_PATH = os.path.join(ARG_BASE_PATH, r'data\usdatarecycler\original_sample_with_error\sensor_data_verasonics_2019_epfl_session_2_pw0.npy')
     RFdata = NestedArray(np.load(ARG_RFDATA_PATH))
     RFdata.signal = np.expand_dims(RFdata.signal, axis=2)
-    # RFdata.signal=np.concatenate((RFdata.signal, np.repeat(np.zeros((1, 192, 1)), 8, axis=0)), axis=0)
-    RFdata.signal[-25:,:,:] = 0
     plot_signal_image(RFdata.signal[:,:,0], compression=True, dbrange=35, path=os.path.join(ARG_RES_PATH,'rf_recycler.png'))
 
 if ARG_DATA_FLAG == 2:
@@ -85,26 +83,12 @@ if ARG_DATA_FLAG == 2:
     ARG_RFDATA_PATH = os.path.join(ARG_BASE_PATH, r'data\usdatarecycler\fixed_sample\clipped_sensor_data.npy')
     RFdata = NestedArray(np.load(ARG_RFDATA_PATH))
     RFdata.signal = np.expand_dims(RFdata.signal, axis=2)
-    # RFdata.signal=np.concatenate((RFdata.signal, np.repeat(np.zeros((1, 192, 1)), 8, axis=0)), axis=0)
     plot_signal_image(RFdata.signal[:,:,0], compression=True, dbrange=35, path=os.path.join(ARG_RES_PATH,'rf_recycler.png'))
-
-    # a = np.copy(RFdata.signal)
-    # b = np.copy(np.squeeze(a[24:(24 + 23), :, 0]))
-    # b = np.expand_dims(b, axis=2)
-    # a[:23, :, :] = b
-    # RFdata.signal[:23] = b
-    #
-    # d = np.copy(np.squeeze(a[(1371 - 36):1371, :, 0]))
-    # d = np.expand_dims(d, axis=2)
-    # RFdata.signal[1372:] = d
-    # e=np.squeeze(RFdata.signal)
-
 
 elif ARG_DATA_FLAG == 3:
     ARG_RFDATA_PATH = os.path.join(ARG_BASE_PATH, r'example_data\CIRSphantom_GE9LD_VVantage\CIRS_phantom.h5')
     RFdata = RFDataloader(ARG_RFDATA_PATH)
     Frame = 0
-    e = np.squeeze(RFdata.signal[:, :, Frame])
     plot_signal_image(RFdata.signal[:,:,1], compression=True, dbrange=35, path=os.path.join(ARG_RES_PATH,'rf_dasIT.png'))
 
 
@@ -128,7 +112,6 @@ TGCsignals = tg_compensation(signals=RFdata.signal,
                              cntrl_points=tgc_cntrl_points.tgc_control_points,
                              mode='points')
 
-
 ####################################################################
 #---------------------------- Filtering ---------------------------#
 
@@ -139,18 +122,11 @@ RFdata_filtered = RFfilter(signals=TGCsignals.signals,
                            type='gaussian',
                            order=10)
 
-
 ####################################################################
 #------------------------ Analytical Signal -----------------------#
 
 ### Hilbert Transform
-RFdata_analytic = analytic_signal(np.squeeze(RFdata_filtered.signal), interp=False)
-
-# if ARG_DATA_FLAG == 1:
-#     plot_signal_image(RFdata_analytic[:,:], compression=True, dbrange=35, path=os.path.join(ARG_RES_PATH,'rf.png'))
-# elif ARG_DATA_FLAG == 2:
-#     plot_signal_image(RFdata_analytic[:,:,Frame], compression=True, dbrange=35, path=ARG_RES_PATH)
-
+RFdata_analytic = analytic_signal(RFdata_filtered.signal, interp=False)
 
 ####################################################################
 #-------------------------- Apodization Table --------------------------#
@@ -158,11 +134,8 @@ RFdata_analytic = analytic_signal(np.squeeze(RFdata_filtered.signal), interp=Fal
 apodization = apodization(delays=None,
                           medium=dasIT_medium.medium,
                           transducer=dasIT_transducer,
-                          apo='henning',
+                          apo='hanning',
                           angles=dasIT_transducer.planewave_angles())
-
-a = np.ones_like(apodization.table)
-
 
 ####################################################################
 #-------------------------- Delay Tables --------------------------#
@@ -174,29 +147,19 @@ delay_table = planewave_delays(medium=dasIT_medium.medium,
                                angles=dasIT_transducer.planewave_angles(),
                                max_depth_samples=dasIT_medium.rx_echo_totalnr_samples)
 
-
-# plot_signal_grid(delay_table.sample_delays[:,:,0], dasIT_medium.medium, compression=False, dbrange=60)
-
-
 ####################################################################
 #-------------------------- Beamforming ---------------------------#
 start_das_timing = datetime.now()
 
-# Mask images areas in axial direction which have been included for reconstruction
-# but are not part of the actual image.
-# RFsignals = RFdata_analytic[:,:,0]
-RFsignals = RFdata_analytic[:,:]
 
+# Bring data in standardized shape for beamformer input
+RFsignals = RFdata_analytic
 RFsignals = np.expand_dims(RFsignals, 2)
 RFsignals = np.repeat(RFsignals, RFsignals.shape[1], axis=2)
-RFsignals = np.expand_dims(RFsignals, 3)
 
 BFsignals = RXbeamformer(signals=RFsignals,
                          delays=delay_table.sample_delays,
                          apodization=apodization.table)
-
-# plot_signal_image(np.abs(BFsignals.frame), compression=True, dbrange=35, path=os.path.join(ARG_RES_PATH,'image_pre_interpolate.png'))
-
 
 ####################################################################
 #------------------------ Image Formation --------------------------
@@ -212,7 +175,6 @@ if ARG_DATA_FLAG == 1 or ARG_DATA_FLAG == 2:
                                             axial_scale=1,
                                             lateral_scale=2)
 
-
     # Plot image
     plot_signal_grid(signals=BFsignals.interpolated.signals_interp,
                      axis_vectors_xz=BFsignals.interpolated.imagegrid_mm,
@@ -222,11 +184,9 @@ if ARG_DATA_FLAG == 1 or ARG_DATA_FLAG == 2:
                      path=os.path.join(ARG_RES_PATH,'image.png'))
 
 
-    # IQsignal_1ch(BFsignals.frame[:,128].real, mode='full', path=ARG_RES_PATH)
-
 elif ARG_DATA_FLAG == 3:
     # Interpolate over Lateral space
-    BFsignals.interpolated = interpolate_bf(signals=BFsignals.envelope[:,:,Frame],
+    BFsignals.interpolated = interpolate_bf(signals=BFsignals.envelope[:,:],
                                             transducer=dasIT_transducer,
                                             medium=dasIT_medium,
                                             axial_scale=1,
@@ -239,7 +199,3 @@ elif ARG_DATA_FLAG == 3:
                      compression=True,
                      dbrange=58,
                      path=os.path.join(ARG_RES_PATH, 'image.png'))
-
-    # IQsignal_1ch(BFsignals.frame[:,128].real, mode='full', path=ARG_RES_PATH)
-
-
