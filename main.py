@@ -43,7 +43,7 @@ dasIT_transducer = transducer(center_frequency_hz = 5.3e6,  # <--- FILL IN CENTE
                               pinmap=physical_transducer.transducer['pinmap'].dropna().to_numpy(dtype='int', copy=False),   # [-]
                               pinmapbase=1, # [-]
                               elevation_focus=0.028, # [m]
-                              focus_number=None,
+                              focus_number=0.5,
                               totalnr_planewaves=1,     # [-]
                               planewave_angle_interval=[0,0],   # [rad]
                               axial_cutoff_wavelength=5,  # [#]
@@ -65,7 +65,7 @@ dasIT_medium = medium(speed_of_sound_ms = 1540, # [m/s]
 #------------------------- RFData Loading -------------------------#
 
 ### Load RF Data
-ARG_DATA_FLAG = 1   #   FLAG==1 --> CIRS Phantom, FLAG==2 --> USDataRecycler Data
+ARG_DATA_FLAG = 3   #   FLAG==1 --> CIRS Phantom, FLAG==2 --> USDataRecycler Data
 
 if ARG_DATA_FLAG == 1:
     class NestedArray:
@@ -85,19 +85,19 @@ if ARG_DATA_FLAG == 2:
     ARG_RFDATA_PATH = os.path.join(ARG_BASE_PATH, r'data\usdatarecycler\fixed_sample\clipped_sensor_data.npy')
     RFdata = NestedArray(np.load(ARG_RFDATA_PATH))
     RFdata.signal = np.expand_dims(RFdata.signal, axis=2)
-    RFdata.signal=np.concatenate((RFdata.signal, np.repeat(np.zeros((1, 192, 1)), 8, axis=0)), axis=0)
+    # RFdata.signal=np.concatenate((RFdata.signal, np.repeat(np.zeros((1, 192, 1)), 8, axis=0)), axis=0)
     plot_signal_image(RFdata.signal[:,:,0], compression=True, dbrange=35, path=os.path.join(ARG_RES_PATH,'rf_recycler.png'))
 
-    a = np.copy(RFdata.signal)
-    b = np.copy(np.squeeze(a[24:(24 + 23), :, 0]))
-    b = np.expand_dims(b, axis=2)
-    a[:23, :, :] = b
-    RFdata.signal[:23] = b
-
-    d = np.copy(np.squeeze(a[(1371 - 36):1371, :, 0]))
-    d = np.expand_dims(d, axis=2)
-    RFdata.signal[1372:] = d
-    e=np.squeeze(RFdata.signal)
+    # a = np.copy(RFdata.signal)
+    # b = np.copy(np.squeeze(a[24:(24 + 23), :, 0]))
+    # b = np.expand_dims(b, axis=2)
+    # a[:23, :, :] = b
+    # RFdata.signal[:23] = b
+    #
+    # d = np.copy(np.squeeze(a[(1371 - 36):1371, :, 0]))
+    # d = np.expand_dims(d, axis=2)
+    # RFdata.signal[1372:] = d
+    # e=np.squeeze(RFdata.signal)
 
 
 elif ARG_DATA_FLAG == 3:

@@ -39,11 +39,20 @@ class RXbeamformer():
 
         # Sum signals
         # Delay tables select elements per channel
-        frame = np.sum(np.squeeze(self._signals[self._delays,
-                                                tdelement_px_selector,
-                                                tdelement_selector,
-                                                angle_selector] * self._apodization),
-                       axis=1)
+        # frame = np.sum(np.squeeze(self._signals[self._delays,
+        #                                         tdelement_px_selector,
+        #                                         tdelement_selector,
+        #                                         angle_selector]),
+        #                axis=1)
+
+        frame = self._signals[self._delays, tdelement_px_selector, tdelement_selector, angle_selector]
+
+        frame = frame * np.expand_dims(self._apodization, axis=3)
+
+        frame = np.squeeze(frame)
+
+        frame = np.sum(frame, axis=1)
+
 
         return frame
 

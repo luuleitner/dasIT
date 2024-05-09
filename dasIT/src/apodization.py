@@ -110,7 +110,8 @@ class apodization():
         # Bring apodization mask into a standardized shape
         apo_mask = np.expand_dims(np.moveaxis(apo_mask, 0, -1), axis=3)
 
-        return apo_mask.astype(np.int32)
+        # return apo_mask.astype(np.int32)
+        return apo_mask
 
 
     def __create_window(self, sort=None):
