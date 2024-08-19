@@ -23,7 +23,7 @@ Author: Christoph Leitner, Date: Aug. 2022
 import numpy as np
 
 class apodization():
-    def __init__(self, delays=None, medium=None, transducer=None, apo='rec', angles=0):
+    def __init__(self, delays=None, medium=None, transducer=None, apo='hanning', angles=0):
         self._delays = delays
         self._medium = medium
         self._pwangles = transducer.planewaves_nr
