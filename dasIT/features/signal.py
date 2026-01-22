@@ -74,8 +74,7 @@ def analytic_signal(signal, interp=False):
         return hilbert_transformed_signal
 
 def envelope(signal):
-    abs(signal)
-    return signal
+    return abs(signal)
 
 def logcompression(signal, dbrange):
     # Adapted from:
