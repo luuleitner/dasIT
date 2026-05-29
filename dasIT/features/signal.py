@@ -52,7 +52,7 @@ class RFfilter():
                           pass_zero=False,
                           scale=False,
                           fs=self._fsampling)
-        filCoeff = np.broadcast_to(filCoeff[:, np.newaxis, np.newaxis], (self._forder, 1, 1)) # Broadcast Filter it in Original Data Shape
+        filCoeff = np.broadcast_to(filCoeff[:, np.newaxis], (self._forder, 1)) # Broadcast Filter it in Original Data Shape
         return filCoeff
 
     @property
