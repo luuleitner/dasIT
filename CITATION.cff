@@ -1,0 +1,58 @@
+cff-version: 1.2.0
+message: "If you use dasIT in your research, please cite the thesis below."
+title: "dasIT"
+abstract: "Delay-and-sum beamformer for plane-wave ultrasound in Python, with a Google Colab sandbox."
+type: software
+authors:
+  - family-names: Leitner
+    given-names: Christoph
+    orcid: "https://orcid.org/0000-0002-7058-7236"
+license: Apache-2.0
+repository-code: "https://github.com/ModularUS/dasIT"
+version: "1.0"
+date-released: "2023-11-08"
+keywords:
+  - ultrasound
+  - beamforming
+  - delay-and-sum
+  - plane-wave imaging
+preferred-citation:
+  type: thesis
+  title: "New directions in recording and processing electro-mechanical signals from the human body"
+  authors:
+    - family-names: Leitner
+      given-names: Christoph
+      orcid: "https://orcid.org/0000-0002-7058-7236"
+  thesis-type: "Doctoral thesis"
+  institution:
+    name: "Graz University of Technology"
+    city: "Graz"
+    country: AT
+  year: 2022
+  month: 8
+  pages: 123
+  url: "https://tugraz.elsevierpure.com/en/publications/new-directions-in-recording-and-processing-electro-mechanical-sig/"
+references:
+  - type: conference-paper
+    title: "Detection of Motor Endplates in Deep and Pennate Skeletal Muscles in-vivo using Ultrafast Ultrasound"
+    authors:
+      - family-names: Leitner
+        given-names: Christoph
+      - family-names: Vostrikov
+        given-names: Sergei
+      - family-names: Penasso
+        given-names: Harald
+      - family-names: Hager
+        given-names: Pascal A.
+      - family-names: Cossettini
+        given-names: Andrea
+      - family-names: Benini
+        given-names: Luca
+      - family-names: Baumgartner
+        given-names: Christian
+    collection-title: "2020 IEEE International Ultrasonics Symposium (IUS)"
+    year: 2020
+    start: 1
+    end: 7
+    doi: "10.1109/IUS46767.2020.9251756"
+    notes: "Source of the example dataset included in this repository."
